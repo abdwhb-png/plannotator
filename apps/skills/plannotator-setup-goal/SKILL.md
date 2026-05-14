@@ -13,16 +13,16 @@ Turn an idea into a goal package at `goals/<slug>/` through structured discovery
 
 State back what the user wants in your own words. If the conversation already has rich context, summarize it. If the goal is bare or vague, do minimal shallow exploration of the codebase to ground your understanding. Keep it to 2-3 sentences. Wait for the user to confirm or correct before continuing.
 
-### 2. Interview
+### 2. Interview (grill me)
 
-Interview the user about every fact of this goal until you reach a complete shared understanding. Surface the facts that define it:
+Interview the user such that you can derive every "fact" this goal should produce, & until you reach a complete shared understanding of the desired outcomes. The following questions areas should help you determine facts about the outcome.
 
 - What the feature/change is
 - Who it's for
 - What problem it solves
 - What behavior changes
 - What success looks like
-- What's in and out of scope
+- What's in and out of scope (The most important area to determine facts)
 - What edge cases to consider
 - What constraints or precedent apply
 
@@ -30,9 +30,11 @@ Ask questions **one at a time**, waiting for feedback before continuing. For eac
 
 **If a question can be answered by exploring the codebase, explore the codebase instead of asking.**
 
-Stop when you have enough facts to fully define the goal. Don't pad.
+Stop when you feel confident in being able to describe the facts of the goal outcome. Don't pad.
 
 ### 3. Fact Sheet
+
+A fact is a simple description that describes the outcome of a goal. It should be easily testable and verifiable. May describe the function of a specific feature or aspect of a system. They describe UI and UX. Again, literally anything that can be tested and verified in automated or manual testing ways. Keep fact language simple. In a way, it's a design spec, but less verbose.
 
 Create the goal directory and write `goals/<slug>/facts.md` — a flat list of bulleted facts. Each fact is one line. Add a minimal note only when the fact can't be stated clearly on its own.
 
