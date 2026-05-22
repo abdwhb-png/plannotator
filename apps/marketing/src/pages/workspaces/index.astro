@@ -26,15 +26,43 @@ const teamSizes = [
   description="Plannotator Workspaces is the hosted team layer for collaborating on agent plans, specs, code reviews, and verification standards. Plannotator core stays free and open source."
 >
   <Fragment slot="head">
-    <!-- Force light mode on this page only. The Base.astro cookie-reader
-         only ADDS the `.light` class (never removes), so this `add` runs
-         before paint and any saved-dark setting won't undo it. -->
-    <script is:inline>
-      document.documentElement.classList.add('light');
-    </script>
+    <!-- Force light mode on this page only. We pin the light-theme tokens
+         directly inside `.ws-force-light` rather than relying on the
+         global `.light` class — the Nav's ModeToggleIsland hydrates a
+         React effect that calls `classList.remove('light')` on mount,
+         which would otherwise undo any earlier force-light attempt. */ -->
+    <style>
+      .ws-force-light {
+        --background: oklch(0.97 0.005 260);
+        --foreground: oklch(0.18 0.02 260);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.18 0.02 260);
+        --popover: oklch(1 0 0);
+        --popover-foreground: oklch(0.18 0.02 260);
+        --primary: oklch(0.50 0.25 280);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.50 0.18 180);
+        --secondary-foreground: oklch(1 0 0);
+        --muted: oklch(0.92 0.01 260);
+        --muted-foreground: oklch(0.40 0.02 260);
+        --accent: oklch(0.60 0.22 50);
+        --accent-foreground: oklch(0.18 0.02 260);
+        --destructive: oklch(0.50 0.25 25);
+        --destructive-foreground: oklch(1 0 0);
+        --border: oklch(0.88 0.01 260);
+        --input: oklch(0.92 0.01 260);
+        --ring: oklch(0.50 0.25 280);
+        --success: oklch(0.45 0.20 150);
+        --success-foreground: oklch(1 0 0);
+        --warning: oklch(0.55 0.18 85);
+        --warning-foreground: oklch(0.18 0.02 260);
+        --code-bg: oklch(0.92 0.01 260);
+        color-scheme: light;
+      }
+    </style>
   </Fragment>
 
-  <div class="min-h-screen bg-background text-foreground">
+  <div class="ws-force-light min-h-screen bg-background text-foreground">
     <Nav />
 
     <!-- Two independent flex columns so the hero (top of left column) and
