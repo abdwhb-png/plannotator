@@ -31,6 +31,37 @@ jobs:
       - name: Run tests
         run: bun test
 
+  pi-extension-ai-runtime-windows:
+    # Exercises the Pi extension's Node/jiti server mirror on Windows with an
+    # npm-style `pi` shim pair. This catches regressions where `where pi`
+    # resolves the extensionless shim before pi.cmd and the Ask AI provider
+    # crashes before the plan review UI opens.
+    name: Pi extension AI runtime (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Generate Pi extension shared copies
+        shell: bash
+        run: bash apps/pi-extension/vendor.sh
+
+      - name: Build Pi AI runtime smoke
+        run: bun build scripts/smoke-pi-extension-ai-runtime.ts --target=node --outfile "$env:RUNNER_TEMP/pi-ai-runtime-smoke.mjs"
+
+      - name: Run Pi AI runtime smoke
+        run: node "$env:RUNNER_TEMP/pi-ai-runtime-smoke.mjs"
+
   install-cmd-windows:
     # End-to-end integration test for scripts/install.cmd on real cmd.exe.
     # The unit tests in scripts/install.test.ts are file-content string checks

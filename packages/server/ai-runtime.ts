@@ -6,6 +6,7 @@ import {
   type AIEndpoints,
   type PiSDKConfig,
 } from "@plannotator/ai";
+import { resolveWindowsCommandShim } from "@plannotator/ai/providers/command-path";
 
 export interface AIRuntime {
   endpoints: AIEndpoints;
@@ -54,8 +55,9 @@ export async function createAIRuntime(options: CreateAIRuntimeOptions = {}): Pro
 
   try {
     const { PiSDKProvider } = await import("@plannotator/ai/providers/pi-sdk");
-    const piPath = Bun.which("pi");
-    if (piPath) {
+    const rawPiPath = Bun.which("pi");
+    if (rawPiPath) {
+      const piPath = resolveWindowsCommandShim(rawPiPath);
       const provider = await createProvider({
         type: "pi-sdk",
         cwd,
