@@ -30,11 +30,17 @@ export interface PhaseProfile {
 export interface PlannotatorConfig {
   defaults?: PhaseProfile | null;
   phases?: Partial<Record<PhaseName, PhaseProfile | null>>;
+  /** When false, plan approval via plannotator_submit_plan will NOT auto-switch to executing phase or send "Continue". Defaults to true. */
+  autoExecute?: boolean;
 }
 
 export interface LoadedPlannotatorConfig {
   config: PlannotatorConfig;
   warnings: string[];
+}
+
+export function resolveAutoExecute(config: PlannotatorConfig): boolean {
+  return config.autoExecute !== false;
 }
 
 export interface ResolvedPhaseProfile {
@@ -171,6 +177,7 @@ function mergeConfig(base: PlannotatorConfig, override: PlannotatorConfig): Plan
   return {
     defaults: mergeProfile(base.defaults, override.defaults),
     phases: Object.keys(phases).length > 0 ? phases : undefined,
+    autoExecute: override.autoExecute !== undefined ? override.autoExecute : base.autoExecute,
   };
 }
 
@@ -193,6 +200,10 @@ function loadConfigSource(path: string): { config: PlannotatorConfig; warning?: 
       if (normalized !== undefined) phases[phase] = normalized;
     }
     if (Object.keys(phases).length > 0) config.phases = phases;
+  }
+
+  if ("autoExecute" in raw) {
+    config.autoExecute = typeof raw.autoExecute === "boolean" ? raw.autoExecute : undefined;
   }
 
   return { config };

@@ -25,7 +25,7 @@ import type {
 	ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import { Key } from "@earendil-works/pi-tui";
-import { buildPromptVariables, formatTodoList, loadPlannotatorConfig, renderTemplate, resolvePhaseProfile } from "./config.js";
+import { buildPromptVariables, formatTodoList, loadPlannotatorConfig, renderTemplate, resolveAutoExecute, resolvePhaseProfile } from "./config.js";
 import {
 	type ChecklistItem,
 	markCompletedSteps,
@@ -834,11 +834,13 @@ export default function plannotator(pi: ExtensionAPI): void {
 
 			// Non-interactive or no HTML: auto-approve
 			if (!ctx.hasUI || !hasPlanBrowserHtml()) {
-				phase = "executing";
-				await applyPhaseConfig(ctx, { restoreSavedState: true });
-				pi.appendEntry("plannotator-execute", { lastSubmittedPath });
-				persistState();
-				justApprovedPlan = true;
+				if (resolveAutoExecute(plannotatorConfig)) {
+					phase = "executing";
+					await applyPhaseConfig(ctx, { restoreSavedState: true });
+					pi.appendEntry("plannotator-execute", { lastSubmittedPath });
+					persistState();
+					justApprovedPlan = true;
+				}
 				return {
 					content: [
 						{
@@ -847,7 +849,7 @@ export default function plannotator(pi: ExtensionAPI): void {
 						},
 					],
 					details: { approved: true },
-					terminate: true,
+					terminate: resolveAutoExecute(plannotatorConfig) ? true : undefined,
 				};
 			}
 
@@ -864,11 +866,15 @@ export default function plannotator(pi: ExtensionAPI): void {
 			}
 
 			if (result.approved) {
-				phase = "executing";
-				await applyPhaseConfig(ctx, { restoreSavedState: true });
-				pi.appendEntry("plannotator-execute", { lastSubmittedPath });
-				persistState();
-				justApprovedPlan = true;
+				if (resolveAutoExecute(plannotatorConfig)) {
+					phase = "executing";
+					await applyPhaseConfig(ctx, { restoreSavedState: true });
+					pi.appendEntry("plannotator-execute", { lastSubmittedPath });
+					persistState();
+					justApprovedPlan = true;
+				} else {
+					persistState();
+				}
 
 				const doneMsg =
 					checklistItems.length > 0
@@ -888,7 +894,7 @@ export default function plannotator(pi: ExtensionAPI): void {
 							},
 						],
 						details: { approved: true, feedback: result.feedback },
-						terminate: true,
+						terminate: resolveAutoExecute(plannotatorConfig) ? true : undefined,
 					};
 				}
 
@@ -903,7 +909,7 @@ export default function plannotator(pi: ExtensionAPI): void {
 						},
 					],
 					details: { approved: true },
-					terminate: true,
+					terminate: resolveAutoExecute(plannotatorConfig) ? true : undefined,
 				};
 			}
 
