@@ -23,6 +23,11 @@ pi install ./plannotator/apps/pi-extension
 pi -e npm:@plannotator/pi-extension
 ```
 
+This package registers **two extensions** automatically:
+
+1. **Main extension** (`index.ts`) — full plan mode with phase management, auto-execution on approval, progress tracking
+2. **Bridge extension** (`plannotator-bridge.ts`) — slim tools `plan_submit` and `plan_annotate` for custom role workflows that need post-approval control
+
 ## Build from source
 
 If installing from a local clone, build the HTML assets first:
@@ -77,6 +82,7 @@ Later layers overwrite earlier ones. If a field is omitted, it inherits the valu
 
 ```json
 {
+  "autoExecute": true,
   "defaults": {
     "model": { "provider": "anthropic", "id": "claude-sonnet-4-5" },
     "thinking": "medium",
@@ -110,6 +116,7 @@ Later layers overwrite earlier ones. If a field is omitted, it inherits the valu
 
 | Option | Type | Meaning |
 |--------|------|---------|
+| `autoExecute` | `boolean` | When `false`, the main `plannotator_submit_plan` tool will NOT auto-switch to executing phase or send "Continue with the approved plan." after approval. Defaults to `true`. |
 | `defaults` | object | Base values applied to every phase before phase-specific overrides |
 | `phases` | object | Phase-specific overrides |
 | `phases.planning` | object | Settings for planning mode |
@@ -143,6 +150,40 @@ Use these inside `systemPrompt` strings:
 - Built-in base config shipped with the package: `apps/pi-extension/plannotator.json`
 - Global user override: `~/.pi/agent/plannotator.json`
 - Project-local override: `<cwd>/.pi/plannotator.json`
+
+### Bridge extension — slim tools for custom workflows
+
+The `plannotator-bridge.ts` extension registers two tools designed for custom role workflows (e.g. the built-in `plan.md` role) that need post-approval control:
+
+| Tool | Description |
+|------|-------------|
+| `plan_submit` | Submit a markdown plan file for browser review. Returns the decision (`approved`, `feedback`) **without** switching phases or auto-triggering execution. The calling role decides what to do after approval. |
+| `plan_annotate` | Open any file for browser-based annotation. Returns `feedback`, `exit`, `approved` from the browser. |
+
+These tools are useful when you want the human-in-the-loop review but don't want the automatic phase transition that the main `plannotator_submit_plan` tool performs.
+
+#### Example: using `plan_submit` in a custom role
+
+```markdown
+## Plan: My Feature
+
+**Steps**
+1. Research the codebase
+2. Write the implementation
+3. Add tests
+
+**Verification**
+1. Run typecheck
+2. Run tests
+```
+
+```bash
+# In the role, after writing the plan file:
+plan_submit("PLAN.md")
+# → Browser opens, human reviews
+# → Tool returns { approved: true, feedback: "..." }
+# → Role decides: proceed with execution, ask for clarification, etc.
+```
 
 ### Code review
 

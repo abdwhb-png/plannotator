@@ -1,4 +1,5 @@
 {
+  "autoExecute": true,
   "phases": {
     "planning": {
       "activeTools": ["grep", "find", "ls", "plannotator_submit_plan"],

@@ -33,7 +33,7 @@
     "build:vscode": "bun run --cwd apps/vscode-extension build",
     "package:vscode": "bun run --cwd apps/vscode-extension package",
     "test": "bun test",
-    "test:extension": "cd apps/pi-extension && bun test",
+    "test:extension": "bun run --cwd apps/pi-extension test",
     "lint:extension": "bun run --cwd apps/pi-extension lint",
     "typecheck": "bash apps/pi-extension/vendor.sh && tsc --noEmit -p packages/shared/tsconfig.json && tsc --noEmit -p packages/ai/tsconfig.json && tsc --noEmit -p packages/server/tsconfig.json && tsc --noEmit -p packages/ui/tsconfig.json && tsc --noEmit -p apps/pi-extension/tsconfig.json"
   },
