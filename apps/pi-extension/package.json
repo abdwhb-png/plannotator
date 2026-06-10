@@ -37,6 +37,7 @@
   ],
   "scripts": {
     "build": "cp ../hook/dist/index.html plannotator.html && cp ../hook/dist/review.html review-editor.html && bash vendor.sh",
+    "lint": "oxlint --tsconfig tsconfig.json",
     "prepublishOnly": "cd ../.. && bun run build:pi"
   },
   "dependencies": {
@@ -48,10 +49,11 @@
     "@earendil-works/pi-coding-agent": ">=0.74.0"
   },
   "devDependencies": {
-    "glimpseui": "^0.8.0",
-    "@earendil-works/pi-coding-agent": ">=0.74.0",
     "@earendil-works/pi-agent-core": ">=0.74.0",
     "@earendil-works/pi-ai": ">=0.74.0",
-    "@earendil-works/pi-tui": ">=0.74.0"
+    "@earendil-works/pi-coding-agent": ">=0.74.0",
+    "@earendil-works/pi-tui": ">=0.74.0",
+    "glimpseui": "^0.8.0",
+    "oxlint": "^1.68.0"
   }
 }

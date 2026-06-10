@@ -11,7 +11,7 @@
  * post-approval control before starting execution.
  */
 
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { resolve, relative, extname, isAbsolute } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Type } from "@earendil-works/pi-ai";
@@ -21,9 +21,9 @@ import {
   hasPlanBrowserHtml,
 } from "./plannotator-browser.js";
 
-// ── Pure helpers ──
+// ── Pure helpers (exported for unit testing) ──
 
-function validateInputPath(inputPath: string, cwd: string): string | null {
+export function validateInputPath(inputPath: string, cwd: string): string | null {
   if (!inputPath || !inputPath.trim()) {
     return "Path is required";
   }
@@ -38,7 +38,7 @@ function validateInputPath(inputPath: string, cwd: string): string | null {
   return null;
 }
 
-function validatePlanPath(inputPath: string, cwd: string): string | null {
+export function validatePlanPath(inputPath: string, cwd: string): string | null {
   const baseError = validateInputPath(inputPath, cwd);
   if (baseError) return baseError;
 
@@ -59,7 +59,7 @@ function validatePlanPath(inputPath: string, cwd: string): string | null {
   return null;
 }
 
-function validateAnnotatePath(inputPath: string, cwd: string): string | null {
+export function validateAnnotatePath(inputPath: string, cwd: string): string | null {
   const baseError = validateInputPath(inputPath, cwd);
   if (baseError) return baseError;
 
@@ -75,7 +75,7 @@ function validateAnnotatePath(inputPath: string, cwd: string): string | null {
   return null;
 }
 
-function formatPlanReviewResult(decision: { approved: boolean; feedback?: string }): string {
+export function formatPlanReviewResult(decision: { approved: boolean; feedback?: string }): string {
   if (decision.approved) {
     const notes = decision.feedback ? `\n\n**Reviewer notes:**\n${decision.feedback}` : "";
     return `## Plan Approved ✓${notes}\n\nYou may now proceed with execution.`;
@@ -85,7 +85,7 @@ function formatPlanReviewResult(decision: { approved: boolean; feedback?: string
   return `## Plan Requires Revision\n\n**Feedback:**\n${feedback}\n\nEdit the plan file and re-submit via plan_submit.`;
 }
 
-function formatAnnotationResult(result: { feedback?: string; exit?: boolean; approved?: boolean }): string {
+export function formatAnnotationResult(result: { feedback?: string; exit?: boolean; approved?: boolean }): string {
   if (result.approved) {
     return "## Annotation Approved ✓";
   }
@@ -122,7 +122,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
       _toolCallId: string,
       params: unknown,
       _signal: AbortSignal | undefined,
-      _onUpdate: ((data: unknown) => void) | undefined,
+      _onUpdate: any,
       ctx: ExtensionContext,
     ) {
       const inputPath = (params as { filePath?: string })?.filePath?.trim();
@@ -227,7 +227,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
       _toolCallId: string,
       params: unknown,
       _signal: AbortSignal | undefined,
-      _onUpdate: ((data: unknown) => void) | undefined,
+      _onUpdate: any,
       ctx: ExtensionContext,
     ) {
       const inputPath = (params as { filePath?: string })?.filePath?.trim();
