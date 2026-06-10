@@ -37,6 +37,7 @@
   ],
   "scripts": {
     "build": "cp ../hook/dist/index.html plannotator.html && cp ../hook/dist/review.html review-editor.html && bash vendor.sh",
+    "test": "bun test",
     "lint": "oxlint --tsconfig tsconfig.json",
     "prepublishOnly": "cd ../.. && bun run build:pi"
   },
