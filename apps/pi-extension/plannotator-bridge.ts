@@ -13,7 +13,7 @@
 
 import { readFileSync, statSync } from "node:fs";
 import { resolve, relative, extname, isAbsolute } from "node:path";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "@earendil-works/pi-ai";
 import {
   openPlanReviewBrowser,
@@ -116,19 +116,14 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
         description:
           "Path to the markdown plan file, relative to the working directory. Must end in .md or .mdx.",
       }),
-    }),
+    }) as any,
 
-    async execute(
-      _toolCallId: string,
-      params: unknown,
-      _signal: AbortSignal | undefined,
-      _onUpdate: any,
-      ctx: ExtensionContext,
-    ) {
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const inputPath = (params as { filePath?: string })?.filePath?.trim();
       if (!inputPath) {
         return {
           content: [{ type: "text", text: "Error: plan_submit requires a filePath argument." }],
+          details: { approved: false },
         };
       }
 
@@ -137,6 +132,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
       if (validationError) {
         return {
           content: [{ type: "text", text: `Error: ${validationError}` }],
+          details: { approved: false },
         };
       }
 
@@ -148,6 +144,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
         if (!planContent.trim()) {
           return {
             content: [{ type: "text", text: `Error: plan file is empty: ${inputPath}` }],
+            details: { approved: false },
           };
         }
       } catch (err) {
@@ -158,6 +155,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
               text: `Error reading file: ${err instanceof Error ? err.message : String(err)}`,
             },
           ],
+          details: { approved: false },
         };
       }
 
@@ -175,6 +173,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
                 "\n\n---\nReview the plan above and approve or request changes.",
             },
           ],
+          details: { approved: false },
         };
       }
 
@@ -191,8 +190,8 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
           ],
           details: {
             approved: decision.approved,
-            feedback: decision.feedback,
-          },
+            feedback: decision.feedback ?? undefined,
+          } as any,
         };
       } catch (err) {
         return {
@@ -202,6 +201,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
               text: `Error launching plan review: ${err instanceof Error ? err.message : String(err)}`,
             },
           ],
+          details: { approved: false },
         };
       }
     },
@@ -221,19 +221,14 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
           "Path to the file to annotate, relative to the working directory. " +
           "Can be .md, .ts, .tsx, .html, or any text file.",
       }),
-    }),
+    }) as any,
 
-    async execute(
-      _toolCallId: string,
-      params: unknown,
-      _signal: AbortSignal | undefined,
-      _onUpdate: any,
-      ctx: ExtensionContext,
-    ) {
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const inputPath = (params as { filePath?: string })?.filePath?.trim();
       if (!inputPath) {
         return {
           content: [{ type: "text", text: "Error: plan_annotate requires a filePath argument." }],
+          details: {},
         };
       }
 
@@ -242,6 +237,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
       if (validationError) {
         return {
           content: [{ type: "text", text: `Error: ${validationError}` }],
+          details: {},
         };
       }
 
@@ -258,6 +254,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
               text: `Error reading file: ${err instanceof Error ? err.message : String(err)}`,
             },
           ],
+          details: {},
         };
       }
 
@@ -274,6 +271,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
                 content,
             },
           ],
+          details: {},
         };
       }
 
@@ -297,7 +295,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
             approved: result.approved,
             feedback: result.feedback,
             exit: result.exit,
-          },
+          } as any,
         };
       } catch (err) {
         return {
@@ -307,6 +305,7 @@ export default function plannotatorBridge(pi: ExtensionAPI) {
               text: `Error launching annotation: ${err instanceof Error ? err.message : String(err)}`,
             },
           ],
+          details: {},
         };
       }
     },
